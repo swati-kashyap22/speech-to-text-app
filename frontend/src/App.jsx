@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import "./App.css";
 
 function App() {
   const [transcription, setTranscription] = useState("");
@@ -69,47 +68,94 @@ function App() {
   };
 
   return (
-    <div className="app">
-      <h1>Speech to Text</h1>
+    <div className="min-h-screen bg-slate-100 px-4 py-10">
+      <div className="mx-auto max-w-3xl rounded-2xl bg-white p-8 shadow-lg">
+        <h1 className="text-center text-4xl font-bold text-slate-800">
+          Speech to Text App
+        </h1>
 
-      <input
-        type="file"
-        accept="audio/*"
-        onChange={(e) => setFile(e.target.files[0])}
-      />
+        <p className="mt-3 text-center text-slate-500">
+          Upload or record audio and generate transcription records.
+        </p>
 
-      <button onClick={() => uploadAudio()}>Upload Audio</button>
+        <div className="mt-8 rounded-xl border border-slate-200 p-6">
+          <input
+            type="file"
+            accept="audio/*"
+            onChange={(e) => setFile(e.target.files[0])}
+            className="w-full rounded-lg border border-slate-300 p-3"
+          />
 
-      {!recording ? (
-        <button onClick={startRecording}>Start Recording</button>
-      ) : (
-        <button onClick={stopRecording}>Stop Recording</button>
-      )}
+          <div className="mt-5 flex flex-wrap gap-3">
+            <button
+              onClick={() => uploadAudio()}
+              className="rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700"
+            >
+              Upload Audio
+            </button>
 
-      <p>{file ? `Selected: ${file.name}` : "No file selected"}</p>
-      <p>{message}</p>
-
-      {transcription && (
-        <div>
-          <h2>Transcription:</h2>
-          <p>{transcription}</p>
-        </div>
-      )}
-
-      <h2>Transcription History</h2>
-
-      {history.length === 0 ? (
-        <p>No transcriptions yet.</p>
-      ) : (
-        history.map((item) => (
-          <div key={item.id}>
-            <h3>{item.fileName}</h3>
-            <p>{item.transcription}</p>
-            <small>{item.createdAt}</small>
-            <hr />
+            {!recording ? (
+              <button
+                onClick={startRecording}
+                className="rounded-lg bg-green-600 px-5 py-3 font-semibold text-white hover:bg-green-700"
+              >
+                Start Recording
+              </button>
+            ) : (
+              <button
+                onClick={stopRecording}
+                className="rounded-lg bg-red-600 px-5 py-3 font-semibold text-white hover:bg-red-700"
+              >
+                Stop Recording
+              </button>
+            )}
           </div>
-        ))
-      )}
+
+          <p className="mt-4 text-sm text-slate-600">
+            {file ? `Selected: ${file.name}` : "No file selected"}
+          </p>
+
+          {message && (
+            <p className="mt-3 rounded-lg bg-slate-100 p-3 text-slate-700">
+              {message}
+            </p>
+          )}
+        </div>
+
+        {transcription && (
+          <div className="mt-6 rounded-xl bg-blue-50 p-5">
+            <h2 className="text-xl font-bold text-blue-800">Transcription</h2>
+            <p className="mt-2 text-slate-700">{transcription}</p>
+          </div>
+        )}
+
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold text-slate-800">
+            Transcription History
+          </h2>
+
+          {history.length === 0 ? (
+            <p className="mt-3 text-slate-500">No transcriptions yet.</p>
+          ) : (
+            <div className="mt-4 space-y-4">
+              {history.map((item) => (
+                <div
+                  key={item._id || item.id}
+                  className="rounded-xl border border-slate-200 bg-slate-50 p-5"
+                >
+                  <h3 className="font-semibold text-slate-800">
+                    {item.fileName}
+                  </h3>
+                  <p className="mt-2 text-slate-700">{item.transcription}</p>
+                  <small className="mt-2 block text-slate-400">
+                    {new Date(item.createdAt).toLocaleString()}
+                  </small>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
