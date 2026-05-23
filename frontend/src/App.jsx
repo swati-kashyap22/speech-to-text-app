@@ -1,12 +1,24 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 
 function App() {
+  const [transcription, setTranscription] = useState("");
+  const [history, setHistory] = useState([]);
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState("");
   const [recording, setRecording] = useState(false);
   const recorderRef = useRef(null);
   const chunksRef = useRef([]);
+
+  const fetchHistory = async () => {
+    const res = await fetch("http://localhost:5000/transcriptions");
+    const data = await res.json();
+    setHistory(data);
+  };
+
+  useEffect(() => {
+    fetchHistory();
+  }, []);
 
   const uploadAudio = async (audioFile = file) => {
     if (!audioFile) {
@@ -24,6 +36,8 @@ function App() {
 
     const data = await res.json();
     setMessage(data.message);
+    setTranscription(data.transcription || "");
+    fetchHistory();
   };
 
   const startRecording = async () => {
@@ -56,7 +70,7 @@ function App() {
 
   return (
     <div className="app">
-      <h1>Speech to Text </h1>
+      <h1>Speech to Text</h1>
 
       <input
         type="file"
@@ -74,6 +88,28 @@ function App() {
 
       <p>{file ? `Selected: ${file.name}` : "No file selected"}</p>
       <p>{message}</p>
+
+      {transcription && (
+        <div>
+          <h2>Transcription:</h2>
+          <p>{transcription}</p>
+        </div>
+      )}
+
+      <h2>Transcription History</h2>
+
+      {history.length === 0 ? (
+        <p>No transcriptions yet.</p>
+      ) : (
+        history.map((item) => (
+          <div key={item.id}>
+            <h3>{item.fileName}</h3>
+            <p>{item.transcription}</p>
+            <small>{item.createdAt}</small>
+            <hr />
+          </div>
+        ))
+      )}
     </div>
   );
 }
