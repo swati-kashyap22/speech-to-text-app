@@ -6,6 +6,7 @@ function App() {
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState("");
   const [recording, setRecording] = useState(false);
+  const [loading, setLoading] = useState(false);
   const recorderRef = useRef(null);
   const chunksRef = useRef([]);
 
@@ -20,10 +21,15 @@ function App() {
   }, []);
 
   const uploadAudio = async (audioFile = file) => {
-    if (!audioFile) {
-      setMessage("Please select or record an audio file first");
-      return;
-    }
+  if (!audioFile) {
+    setMessage("Please select or record an audio file first");
+    return;
+  }
+
+  try {
+    setLoading(true);
+    setMessage("Transcribing audio...");
+    setTranscription("");
 
     const formData = new FormData();
     formData.append("audio", audioFile);
@@ -34,10 +40,20 @@ function App() {
     });
 
     const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Something went wrong");
+    }
+
     setMessage(data.message);
     setTranscription(data.transcription || "");
     fetchHistory();
-  };
+  } catch (error) {
+    setMessage(`Error: ${error.message}`);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const startRecording = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -67,6 +83,15 @@ function App() {
     setRecording(false);
   };
 
+  const clearHistory = async () => {
+  await fetch("http://localhost:5000/transcriptions", {
+    method: "DELETE",
+  });
+
+  setHistory([]);
+  setMessage("History cleared successfully");
+};
+
   return (
     <div className="min-h-screen bg-slate-100 px-4 py-10">
       <div className="mx-auto max-w-3xl rounded-2xl bg-white p-8 shadow-lg">
@@ -88,11 +113,12 @@ function App() {
 
           <div className="mt-5 flex flex-wrap gap-3">
             <button
-              onClick={() => uploadAudio()}
-              className="rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700"
-            >
-              Upload Audio
-            </button>
+  onClick={() => uploadAudio()}
+  disabled={loading}
+  className="rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+>
+  {loading ? "Processing..." : "Upload Audio"}
+</button>
 
             {!recording ? (
               <button
@@ -133,6 +159,12 @@ function App() {
           <h2 className="text-2xl font-bold text-slate-800">
             Transcription History
           </h2>
+          <button
+  onClick={clearHistory}
+  className="mt-3 rounded-lg bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700"
+>
+  Clear History
+</button>
 
           {history.length === 0 ? (
             <p className="mt-3 text-slate-500">No transcriptions yet.</p>

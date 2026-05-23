@@ -74,6 +74,18 @@ app.get("/transcriptions", async (req, res) => {
   }
 });
 
+app.delete("/transcriptions", async (req, res) => {
+  try {
+    await Transcription.deleteMany({});
+    res.json({ message: "Transcription history cleared successfully" });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to clear history",
+      error: error.message,
+    });
+  }
+});
+
 const PORT = 5000;
 
 app.listen(PORT, () => {
