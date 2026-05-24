@@ -21,39 +21,37 @@ function App() {
   }, []);
 
   const uploadAudio = async (audioFile = file) => {
-  if (!audioFile) {
-    setMessage("Please select or record an audio file first");
-    return;
-  }
-
-  try {
-    setLoading(true);
-    setMessage("Transcribing audio...");
-    setTranscription("");
-
-    const formData = new FormData();
-    formData.append("audio", audioFile);
-
-    const res = await fetch("http://localhost:5000/upload-audio", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.message || "Something went wrong");
+    if (!audioFile) {
+      setMessage("Please select or record an audio file first");
+      return;
     }
 
-    setMessage(data.message);
-    setTranscription(data.transcription || "");
-    fetchHistory();
-  } catch (error) {
-    setMessage(`Error: ${error.message}`);
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      setLoading(true);
+      setMessage("Transcribing audio...");
+      setTranscription("");
+
+      const formData = new FormData();
+      formData.append("audio", audioFile);
+
+      const res = await fetch("http://localhost:5000/upload-audio", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message || "Something went wrong");
+
+      setMessage(data.message);
+      setTranscription(data.transcription || "");
+      fetchHistory();
+    } catch (error) {
+      setMessage(`Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const startRecording = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -84,104 +82,140 @@ function App() {
   };
 
   const clearHistory = async () => {
-  await fetch("http://localhost:5000/transcriptions", {
-    method: "DELETE",
-  });
+    await fetch("http://localhost:5000/transcriptions", {
+      method: "DELETE",
+    });
 
-  setHistory([]);
-  setMessage("History cleared successfully");
-};
+    setHistory([]);
+    setMessage("History cleared successfully");
+  };
 
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-10">
-      <div className="mx-auto max-w-3xl rounded-2xl bg-white p-8 shadow-lg">
-        <h1 className="text-center text-4xl font-bold text-slate-800">
-          Speech to Text App
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 px-4 py-10 text-white">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-10 text-center">
+          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.3em] text-blue-300">
+            AI Powered MERN Project
+          </p>
+          <h1 className="text-5xl font-extrabold tracking-tight md:text-6xl">
+  EchoScript
+</h1>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-300">
+           Speak Naturally. Transcribe Instantly.
+          </p>
+        </div>
 
-        <p className="mt-3 text-center text-slate-500">
-          Upload or record audio and generate transcription records.
-        </p>
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="rounded-3xl border border-white/10 bg-white/10 p-6 shadow-2xl backdrop-blur">
+            <h2 className="mb-4 text-2xl font-bold">Audio Input</h2>
 
-        <div className="mt-8 rounded-xl border border-slate-200 p-6">
-          <input
-            type="file"
-            accept="audio/*"
-            onChange={(e) => setFile(e.target.files[0])}
-            className="w-full rounded-lg border border-slate-300 p-3"
-          />
+            <label className="block cursor-pointer rounded-2xl border-2 border-dashed border-blue-300/40 bg-slate-900/60 p-6 text-center hover:border-blue-300">
+              <input
+                type="file"
+                accept="audio/*"
+                onChange={(e) => setFile(e.target.files[0])}
+                className="hidden"
+              />
+              <span className="text-lg font-semibold">Choose Audio File</span>
+              <p className="mt-2 text-sm text-slate-400">
+                MP3, WAV, WEBM, M4A supported
+              </p>
+            </label>
 
-          <div className="mt-5 flex flex-wrap gap-3">
-            <button
-  onClick={() => uploadAudio()}
-  disabled={loading}
-  className="rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
->
-  {loading ? "Processing..." : "Upload Audio"}
-</button>
+            <p className="mt-4 rounded-xl bg-slate-900/70 p-3 text-sm text-slate-300">
+              {file ? `Selected: ${file.name}` : "No file selected"}
+            </p>
 
-            {!recording ? (
+            <div className="mt-5 flex flex-wrap gap-3">
               <button
-                onClick={startRecording}
-                className="rounded-lg bg-green-600 px-5 py-3 font-semibold text-white hover:bg-green-700"
+                onClick={() => uploadAudio()}
+                disabled={loading}
+                className="rounded-xl bg-blue-600 px-6 py-3 font-bold text-white shadow-lg shadow-blue-900/40 hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-blue-300"
               >
-                Start Recording
+                {loading ? "Processing..." : "Upload Audio"}
               </button>
-            ) : (
-              <button
-                onClick={stopRecording}
-                className="rounded-lg bg-red-600 px-5 py-3 font-semibold text-white hover:bg-red-700"
-              >
-                Stop Recording
-              </button>
+
+              {!recording ? (
+                <button
+                  onClick={startRecording}
+                  className="rounded-xl bg-emerald-600 px-6 py-3 font-bold text-white shadow-lg shadow-emerald-900/40 hover:bg-emerald-500"
+                >
+                  Start Recording
+                </button>
+              ) : (
+                <button
+                  onClick={stopRecording}
+                  className="rounded-xl bg-red-600 px-6 py-3 font-bold text-white shadow-lg shadow-red-900/40 hover:bg-red-500"
+                >
+                  Stop Recording
+                </button>
+              )}
+            </div>
+
+            {recording && (
+              <div className="mt-5 flex items-center gap-3 rounded-xl bg-red-500/20 p-3 text-red-200">
+                <span className="h-3 w-3 animate-pulse rounded-full bg-red-400"></span>
+                Recording in progress...
+              </div>
+            )}
+
+            {message && (
+              <div className="mt-5 rounded-xl bg-white/10 p-4 text-slate-200">
+                {message}
+              </div>
             )}
           </div>
 
-          <p className="mt-4 text-sm text-slate-600">
-            {file ? `Selected: ${file.name}` : "No file selected"}
-          </p>
+          <div className="rounded-3xl border border-white/10 bg-white/10 p-6 shadow-2xl backdrop-blur">
+            <h2 className="mb-4 text-2xl font-bold">Latest Transcription</h2>
 
-          {message && (
-            <p className="mt-3 rounded-lg bg-slate-100 p-3 text-slate-700">
-              {message}
-            </p>
-          )}
+            {transcription ? (
+              <div className="rounded-2xl bg-slate-950/70 p-5 leading-relaxed text-slate-200">
+                {transcription}
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-dashed border-white/20 p-8 text-center text-slate-400">
+                Your transcription will appear here.
+              </div>
+            )}
+          </div>
         </div>
 
-        {transcription && (
-          <div className="mt-6 rounded-xl bg-blue-50 p-5">
-            <h2 className="text-xl font-bold text-blue-800">Transcription</h2>
-            <p className="mt-2 text-slate-700">{transcription}</p>
-          </div>
-        )}
+        <div className="mt-8 rounded-3xl border border-white/10 bg-white/10 p-6 shadow-2xl backdrop-blur">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-2xl font-bold">Transcription History</h2>
+              <p className="text-sm text-slate-400">
+                Saved records from MongoDB Atlas
+              </p>
+            </div>
 
-        <div className="mt-8">
-          <h2 className="text-2xl font-bold text-slate-800">
-            Transcription History
-          </h2>
-          <button
-  onClick={clearHistory}
-  className="mt-3 rounded-lg bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700"
->
-  Clear History
-</button>
+            <button
+              onClick={clearHistory}
+              className="rounded-xl bg-red-600 px-5 py-2 font-bold text-white hover:bg-red-500"
+            >
+              Clear History
+            </button>
+          </div>
 
           {history.length === 0 ? (
-            <p className="mt-3 text-slate-500">No transcriptions yet.</p>
+            <p className="rounded-2xl bg-slate-950/60 p-6 text-center text-slate-400">
+              No transcriptions yet.
+            </p>
           ) : (
-            <div className="mt-4 space-y-4">
+            <div className="grid gap-4">
               {history.map((item) => (
                 <div
                   key={item._id || item.id}
-                  className="rounded-xl border border-slate-200 bg-slate-50 p-5"
+                  className="rounded-2xl border border-white/10 bg-slate-950/60 p-5"
                 >
-                  <h3 className="font-semibold text-slate-800">
-                    {item.fileName}
-                  </h3>
-                  <p className="mt-2 text-slate-700">{item.transcription}</p>
-                  <small className="mt-2 block text-slate-400">
-                    {new Date(item.createdAt).toLocaleString()}
-                  </small>
+                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="font-bold text-blue-300">{item.fileName}</h3>
+                    <span className="text-xs text-slate-500">
+                      {new Date(item.createdAt).toLocaleString()}
+                    </span>
+                  </div>
+                  <p className="text-slate-300">{item.transcription}</p>
                 </div>
               ))}
             </div>
