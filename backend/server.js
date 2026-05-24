@@ -1,3 +1,4 @@
+const fs = require("fs");
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
@@ -34,13 +35,31 @@ app.get("/", (req, res) => {
 app.post("/upload-audio", upload.single("audio"), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({
-        message: "No audio uploaded",
-      });
+      return res.status(400).json({ message: "No audio uploaded" });
+    }
+
+    const audioBuffer = fs.readFileSync(req.file.path);
+
+    const deepgramResponse = await fetch(
+      "https://api.deepgram.com/v1/listen?model=nova-3&smart_format=true",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Token ${process.env.DEEPGRAM_API_KEY}`,
+          "Content-Type": req.file.mimetype || "audio/webm",
+        },
+        body: audioBuffer,
+      }
+    );
+
+    const deepgramData = await deepgramResponse.json();
+
+    if (!deepgramResponse.ok) {
+      throw new Error(deepgramData.err_msg || "Deepgram transcription failed");
     }
 
     const transcriptionText =
-      "This is demo transcription text generated successfully.";
+      deepgramData.results.channels[0].alternatives[0].transcript;
 
     const savedRecord = await Transcription.create({
       fileName: req.file.originalname,
