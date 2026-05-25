@@ -1,24 +1,88 @@
-import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";import { useEffect, useRef, useState } from "react";
+import { supabase } from "./supabase";
+import Auth from "./Auth";
 
 function App() {
+  const [user, setUser] = useState(null);
+ const [authLoading, setAuthLoading] = useState(false);
+
   const [transcription, setTranscription] = useState("");
   const [history, setHistory] = useState([]);
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState("");
   const [recording, setRecording] = useState(false);
   const [loading, setLoading] = useState(false);
+
   const recorderRef = useRef(null);
   const chunksRef = useRef([]);
 
+ useEffect(() => {
+  let mounted = true;
+
+  const loadUser = async () => {
+    try {
+      const { data } = await supabase.auth.getSession();
+
+      if (mounted) {
+        setUser(data.session?.user || null);
+      }
+    } catch (error) {
+      console.log(error);
+
+      if (mounted) {
+        setUser(null);
+      }
+    } finally {
+      if (mounted) {
+        setAuthLoading(false);
+      }
+    }
+  };
+
+  loadUser();
+
+  const timeout = setTimeout(() => {
+    setAuthLoading(false);
+  }, 2000);
+
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((_event, session) => {
+    setUser(session?.user || null);
+    setAuthLoading(false);
+  });
+
+  return () => {
+    mounted = false;
+    clearTimeout(timeout);
+    subscription.unsubscribe();
+  };
+}, []);
+
   const fetchHistory = async () => {
-    const res = await fetch("http://localhost:5000/transcriptions");
-    const data = await res.json();
-    setHistory(data);
+    try {
+      const res = await fetch(
+        `http://localhost:5000/transcriptions?email=${user.email}`
+      );
+
+      const data = await res.json();
+      setHistory(data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
-    fetchHistory();
-  }, []);
+    if (user) {
+      fetchHistory();
+    }
+  }, [user]);
+
+  const logout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setAuthLoading(false);
+  };
 
   const uploadAudio = async (audioFile = file) => {
     if (!audioFile) {
@@ -32,7 +96,9 @@ function App() {
       setTranscription("");
 
       const formData = new FormData();
+
       formData.append("audio", audioFile);
+      formData.append("userEmail", user.email);
 
       const res = await fetch("http://localhost:5000/upload-audio", {
         method: "POST",
@@ -41,10 +107,13 @@ function App() {
 
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.message || "Something went wrong");
+      if (!res.ok) {
+        throw new Error(data.message || "Something went wrong");
+      }
 
       setMessage(data.message);
       setTranscription(data.transcription || "");
+
       fetchHistory();
     } catch (error) {
       setMessage(`Error: ${error.message}`);
@@ -54,8 +123,12 @@ function App() {
   };
 
   const startRecording = async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+    });
+
     recorderRef.current = new MediaRecorder(stream);
+
     chunksRef.current = [];
 
     recorderRef.current.ondataavailable = (e) => {
@@ -63,16 +136,27 @@ function App() {
     };
 
     recorderRef.current.onstop = () => {
-      const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-      const recordedFile = new File([blob], "recording.webm", {
+      const blob = new Blob(chunksRef.current, {
         type: "audio/webm",
       });
+
+      const recordedFile = new File(
+        [blob],
+        "recording.webm",
+        {
+          type: "audio/webm",
+        }
+      );
+
       setFile(recordedFile);
+
       setMessage("Recording saved. Click Upload Audio.");
     };
 
     recorderRef.current.start();
+
     setRecording(true);
+
     setMessage("Recording...");
   };
 
@@ -82,70 +166,118 @@ function App() {
   };
 
   const clearHistory = async () => {
-    await fetch("http://localhost:5000/transcriptions", {
-      method: "DELETE",
-    });
+    await fetch(
+      `http://localhost:5000/transcriptions?email=${user.email}`,
+      {
+        method: "DELETE",
+      }
+    );
 
     setHistory([]);
+
     setMessage("History cleared successfully");
   };
 
+
+  if (!user) {
+    return <Auth />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 px-4 py-10 text-white">
-      <div className="mx-auto max-w-5xl">
-        <div className="mb-10 text-center">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.3em] text-blue-300">
+      <motion.div
+  initial={{ opacity: 0, y: 30 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.8 }}
+  className="mx-auto max-w-6xl"
+>
+
+        {/* HEADER */}
+        <div className="relative mb-16 text-center">
+
+          {/* LOGOUT */}
+       <button
+  onClick={logout}
+  className="absolute right-0 top-0 rounded-xl border border-blue-300/40 bg-white/10 px-5 py-2 font-bold text-blue-200 transition hover:bg-blue-500/20 hover:text-white"
+>
+  Logout
+</button>
+
+          <p className="mb-4 text-sm font-semibold uppercase tracking-[0.4em] text-blue-300">
             AI Powered MERN Project
           </p>
-          <h1 className="text-5xl font-extrabold tracking-tight md:text-6xl">
-  EchoScript
+<h1 className="group relative inline-block cursor-default text-7xl font-extrabold tracking-tight">
+
+  <span className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 bg-clip-text text-transparent blur-xl opacity-70 transition duration-500 group-hover:opacity-100">
+    EchoScript
+  </span>
+
+  <span className="relative animate-pulse bg-gradient-to-r from-cyan-300 via-blue-400 to-indigo-500 bg-clip-text text-transparent">
+    EchoScript
+  </span>
+
 </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-300">
-           Speak Naturally. Transcribe Instantly.
+
+          <p className="mx-auto mt-5 max-w-2xl text-xl text-slate-300">
+            Speak Naturally. Transcribe Instantly.
           </p>
         </div>
 
+        {/* MAIN GRID */}
         <div className="grid gap-6 md:grid-cols-2">
-          <div className="rounded-3xl border border-white/10 bg-white/10 p-6 shadow-2xl backdrop-blur">
-            <h2 className="mb-4 text-2xl font-bold">Audio Input</h2>
 
-            <label className="block cursor-pointer rounded-2xl border-2 border-dashed border-blue-300/40 bg-slate-900/60 p-6 text-center hover:border-blue-300">
+          {/* AUDIO INPUT */}
+          <div className="h-[540px] rounded-3xl border border-white/10 bg-white/10 p-8 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/40 hover:shadow-[0_0_40px_rgba(59,130,246,0.45)]">
+            <h2 className="mb-6 text-3xl font-bold">
+              Audio Input
+            </h2>
+
+            <label className="block cursor-pointer rounded-3xl border-2 border-dashed border-blue-300/30 bg-slate-900/60 p-10 text-center transition hover:border-blue-400">
               <input
                 type="file"
                 accept="audio/*"
                 onChange={(e) => setFile(e.target.files[0])}
                 className="hidden"
               />
-              <span className="text-lg font-semibold">Choose Audio File</span>
-              <p className="mt-2 text-sm text-slate-400">
+
+              <span className="text-2xl font-bold">
+                Choose Audio File
+              </span>
+
+              <p className="mt-3 text-slate-400">
                 MP3, WAV, WEBM, M4A supported
               </p>
             </label>
 
-            <p className="mt-4 rounded-xl bg-slate-900/70 p-3 text-sm text-slate-300">
-              {file ? `Selected: ${file.name}` : "No file selected"}
-            </p>
+            <div className="mt-5 rounded-2xl bg-slate-900/70 p-4 text-slate-300">
+              {file
+                ? `Selected: ${file.name}`
+                : "No file selected"}
+            </div>
 
-            <div className="mt-5 flex flex-wrap gap-3">
+            <div className="mt-6 flex flex-wrap gap-4">
+
               <button
                 onClick={() => uploadAudio()}
                 disabled={loading}
-                className="rounded-xl bg-blue-600 px-6 py-3 font-bold text-white shadow-lg shadow-blue-900/40 hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-blue-300"
+                className="rounded-2xl bg-blue-600 px-7 py-4 text-lg font-bold text-white shadow-lg shadow-blue-900/40 transition hover:bg-blue-500 disabled:bg-blue-300"
               >
-                {loading ? "Processing..." : "Upload Audio"}
+                {loading
+                  ? "Processing..."
+                  : "Upload Audio"}
               </button>
 
               {!recording ? (
                 <button
                   onClick={startRecording}
-                  className="rounded-xl bg-emerald-600 px-6 py-3 font-bold text-white shadow-lg shadow-emerald-900/40 hover:bg-emerald-500"
+                  className="rounded-2xl bg-emerald-600 px-7 py-4 text-lg font-bold text-white shadow-lg shadow-emerald-900/40 transition hover:bg-emerald-500"
                 >
                   Start Recording
                 </button>
               ) : (
                 <button
                   onClick={stopRecording}
-                  className="rounded-xl bg-red-600 px-6 py-3 font-bold text-white shadow-lg shadow-red-900/40 hover:bg-red-500"
+                  className="rounded-2xl bg-red-600 px-7 py-4 text-lg font-bold text-white shadow-lg shadow-red-900/40 transition hover:bg-red-500"
                 >
                   Stop Recording
                 </button>
@@ -153,76 +285,94 @@ function App() {
             </div>
 
             {recording && (
-              <div className="mt-5 flex items-center gap-3 rounded-xl bg-red-500/20 p-3 text-red-200">
+              <div className="mt-5 flex items-center gap-3 rounded-2xl bg-red-500/20 p-4 text-red-200">
                 <span className="h-3 w-3 animate-pulse rounded-full bg-red-400"></span>
+
                 Recording in progress...
               </div>
             )}
 
             {message && (
-              <div className="mt-5 rounded-xl bg-white/10 p-4 text-slate-200">
+              <div className="mt-5 rounded-2xl bg-white/10 p-4 text-slate-200">
                 {message}
               </div>
             )}
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/10 p-6 shadow-2xl backdrop-blur">
-            <h2 className="mb-4 text-2xl font-bold">Latest Transcription</h2>
+          {/* TRANSCRIPTION */}
+          <div className="h-[540px] rounded-3xl border border-white/10 bg-white/10 p-8 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/40 hover:shadow-[0_0_40px_rgba(59,130,246,0.45)]">
+            <h2 className="mb-6 text-3xl font-bold">
+              Latest Transcription
+            </h2>
 
             {transcription ? (
-              <div className="rounded-2xl bg-slate-950/70 p-5 leading-relaxed text-slate-200">
+              <div className="rounded-3xl bg-slate-950/70 p-6 leading-relaxed text-slate-200">
                 {transcription}
               </div>
             ) : (
-              <div className="rounded-2xl border border-dashed border-white/20 p-8 text-center text-slate-400">
+              <div className="rounded-3xl border border-dashed border-white/20 p-12 text-center text-slate-400">
                 Your transcription will appear here.
               </div>
             )}
           </div>
         </div>
 
-        <div className="mt-8 rounded-3xl border border-white/10 bg-white/10 p-6 shadow-2xl backdrop-blur">
-          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        {/* HISTORY */}
+        <div className="mt-12 rounded-3xl border border-white/10 bg-white/10 p-8 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:border-cyan-400/40 hover:shadow-[0_0_40px_rgba(59,130,246,0.45)]">
+
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+
             <div>
-              <h2 className="text-2xl font-bold">Transcription History</h2>
-              <p className="text-sm text-slate-400">
-                Saved records from MongoDB Atlas
+              <h2 className="text-3xl font-bold">
+                Transcription History
+              </h2>
+
+              <p className="mt-2 text-slate-400">
+                Your private transcription records
               </p>
             </div>
 
             <button
               onClick={clearHistory}
-              className="rounded-xl bg-red-600 px-5 py-2 font-bold text-white hover:bg-red-500"
+              className="rounded-2xl bg-red-600 px-6 py-3 font-bold text-white transition hover:bg-red-500"
             >
               Clear History
             </button>
           </div>
 
           {history.length === 0 ? (
-            <p className="rounded-2xl bg-slate-950/60 p-6 text-center text-slate-400">
+            <div className="rounded-3xl bg-slate-950/60 p-10 text-center text-slate-400">
               No transcriptions yet.
-            </p>
+            </div>
           ) : (
-            <div className="grid gap-4">
+            <div className="grid gap-5">
               {history.map((item) => (
                 <div
                   key={item._id || item.id}
-                  className="rounded-2xl border border-white/10 bg-slate-950/60 p-5"
+                  className="rounded-3xl border border-white/10 bg-slate-950/60 p-6"
                 >
-                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                    <h3 className="font-bold text-blue-300">{item.fileName}</h3>
-                    <span className="text-xs text-slate-500">
-                      {new Date(item.createdAt).toLocaleString()}
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                    <h3 className="text-xl font-bold text-blue-300">
+                      {item.fileName}
+                    </h3>
+
+                    <span className="text-sm text-slate-500">
+                      {new Date(
+                        item.createdAt
+                      ).toLocaleString()}
                     </span>
                   </div>
-                  <p className="text-slate-300">{item.transcription}</p>
+
+                  <p className="leading-relaxed text-slate-300">
+                    {item.transcription}
+                  </p>
                 </div>
               ))}
             </div>
           )}
         </div>
-      </div>
-    </div>
+     </motion.div>
+</div>
   );
 }
 
