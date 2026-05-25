@@ -167,6 +167,8 @@ function Auth() {
               >
                 Login
               </button>
+              
+
 
               <button
                 onClick={() => {
@@ -225,6 +227,32 @@ function Auth() {
               >
                 {loading ? "Please wait..." : "Login"}
               </button>
+              <button
+  type="button"
+  onClick={async () => {
+    if (!email) {
+      setMessage("Please enter your email first.");
+      return;
+    }
+
+    const { error } =
+      await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo:
+          "https://speech-to-text-app-mu.vercel.app",
+      });
+
+    if (error) {
+      setMessage(error.message);
+    } else {
+      setMessage(
+        "Password reset email sent. Check your inbox."
+      );
+    }
+  }}
+  className="mt-4 w-full text-sm text-blue-300 hover:text-blue-200"
+>
+  Forgot Password?
+</button>
             </form>
           )}
 
