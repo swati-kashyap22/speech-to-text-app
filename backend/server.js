@@ -82,6 +82,7 @@ app.post("/upload-audio", upload.single("audio"), async (req, res) => {
       transcription: transcriptionText,
       userEmail: req.body.userEmail,
     });
+    fs.unlinkSync(req.file.path);
 
     res.json({
       message: "Audio transcribed and saved successfully",

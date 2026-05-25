@@ -15,6 +15,7 @@ function App() {
 
   const recorderRef = useRef(null);
   const chunksRef = useRef([]);
+  const streamRef = useRef(null);
 
  useEffect(() => {
   let mounted = true;
@@ -126,6 +127,7 @@ function App() {
     const stream = await navigator.mediaDevices.getUserMedia({
       audio: true,
     });
+    streamRef.current = stream;
 
     recorderRef.current = new MediaRecorder(stream);
 
@@ -161,9 +163,10 @@ function App() {
   };
 
   const stopRecording = () => {
-    recorderRef.current.stop();
-    setRecording(false);
-  };
+  recorderRef.current.stop();
+  streamRef.current.getTracks().forEach((track) => track.stop());
+  setRecording(false);
+};
 
   const clearHistory = async () => {
     await fetch(
