@@ -63,7 +63,7 @@ function App() {
   const fetchHistory = async () => {
     try {
       const res = await fetch(
-        `http://localhost:5000/transcriptions?email=${user.email}`
+        `https://speech-to-text-app-z349.onrender.com/transcriptions?email=${user.email}`
       );
 
       const data = await res.json();
@@ -101,7 +101,7 @@ function App() {
       formData.append("audio", audioFile);
       formData.append("userEmail", user.email);
 
-      const res = await fetch("http://localhost:5000/upload-audio", {
+      const res = await fetch("https://speech-to-text-app-z349.onrender.com/upload-audio", {
         method: "POST",
         body: formData,
       });
@@ -170,7 +170,7 @@ function App() {
 
   const clearHistory = async () => {
     await fetch(
-      `http://localhost:5000/transcriptions?email=${user.email}`,
+      `https://speech-to-text-app-z349.onrender.com/transcriptions?email=${user.email}`,
       {
         method: "DELETE",
       }
@@ -262,7 +262,7 @@ function App() {
 
               <button
                 onClick={() => uploadAudio()}
-                disabled={loading}
+                disabled={loading || recording}
                 className="rounded-2xl bg-blue-600 px-7 py-4 text-lg font-bold text-white shadow-lg shadow-blue-900/40 transition hover:bg-blue-500 disabled:bg-blue-300"
               >
                 {loading
