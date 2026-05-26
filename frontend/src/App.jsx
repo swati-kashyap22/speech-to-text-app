@@ -267,35 +267,32 @@ if (isRecovery) {
 >
 
         {/* HEADER */}
-        <div className="relative mb-16 text-center">
+        <div className="relative mb-12 text-center pt-12 md:pt-0">
+  <button
+    onClick={logout}
+    className="absolute right-0 top-0 rounded-xl border border-blue-300/40 bg-white/10 px-4 py-2 text-sm font-bold text-blue-200 transition hover:bg-blue-500/20 hover:text-white md:px-5"
+  >
+    Logout
+  </button>
 
-          {/* LOGOUT */}
-       <button
-  onClick={logout}
-  className="absolute right-0 top-0 rounded-xl border border-blue-300/40 bg-white/10 px-5 py-2 font-bold text-blue-200 transition hover:bg-blue-500/20 hover:text-white"
->
-  Logout
-</button>
+  <p className="mb-4 text-xs font-semibold uppercase tracking-[0.25em] text-blue-300 md:text-sm md:tracking-[0.4em]">
+    AI Powered MERN Project
+  </p>
 
-          <p className="mb-4 text-sm font-semibold uppercase tracking-[0.4em] text-blue-300">
-            AI Powered MERN Project
-          </p>
-<h1 className="group relative inline-block cursor-default text-7xl font-extrabold tracking-tight">
+  <h1 className="group relative inline-block cursor-default text-5xl font-extrabold tracking-tight md:text-7xl">
+    <span className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 bg-clip-text text-transparent blur-xl opacity-70 transition duration-500 group-hover:opacity-100">
+      EchoScript
+    </span>
 
-  <span className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 bg-clip-text text-transparent blur-xl opacity-70 transition duration-500 group-hover:opacity-100">
-    EchoScript
-  </span>
+    <span className="relative animate-pulse bg-gradient-to-r from-cyan-300 via-blue-400 to-indigo-500 bg-clip-text text-transparent">
+      EchoScript
+    </span>
+  </h1>
 
-  <span className="relative animate-pulse bg-gradient-to-r from-cyan-300 via-blue-400 to-indigo-500 bg-clip-text text-transparent">
-    EchoScript
-  </span>
-
-</h1>
-
-          <p className="mx-auto mt-5 max-w-2xl text-xl text-slate-300">
-            Speak Naturally. Transcribe Instantly.
-          </p>
-        </div>
+  <p className="mx-auto mt-5 max-w-2xl text-base text-slate-300 md:text-xl">
+    Speak Naturally. Transcribe Instantly.
+  </p>
+</div>
 
         {/* MAIN GRID */}
         <div className="grid gap-6 md:grid-cols-2">
