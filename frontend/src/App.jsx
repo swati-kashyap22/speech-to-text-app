@@ -286,7 +286,7 @@ if (isRecovery) {
         <div className="grid gap-6 md:grid-cols-2">
 
           {/* AUDIO INPUT */}
-          <div className="min-h-[440px] rounded-3xl border border-white/10 bg-white/10 p-8 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/40 hover:shadow-[0_0_40px_rgba(59,130,246,0.45)]">
+          <div className="h-fit rounded-3xl border border-white/10 bg-white/10 p-8 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/40 hover:shadow-[0_0_40px_rgba(59,130,246,0.45)]">
             <h2 className="mb-6 text-3xl font-bold">
               Audio Input
             </h2>
