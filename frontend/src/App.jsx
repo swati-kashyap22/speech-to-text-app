@@ -437,9 +437,9 @@ if (isRecovery) {
 
   <button
   onClick={() => deleteTranscription(item._id)}
-  className="rounded-full bg-red-500/20 p-2 text-red-400 transition hover:bg-red-500/30 hover:text-red-300"
+  className="text-red-400 transition hover:text-red-300"
 >
-  <Trash2 size={18} />
+  <Trash2 size={22} />
 </button>
 </div>
                   </div>
