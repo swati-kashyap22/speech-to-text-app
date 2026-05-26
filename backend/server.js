@@ -113,6 +113,20 @@ app.get("/transcriptions", async (req, res) => {
     });
   }
 });
+app.delete("/transcriptions/:id", async (req, res) => {
+  try {
+    await Transcription.findByIdAndDelete(req.params.id);
+
+    res.json({
+      message: "Transcription deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to delete transcription",
+      error: error.message,
+    });
+  }
+});
 
 app.delete("/transcriptions", async (req, res) => {
   try {

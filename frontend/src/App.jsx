@@ -172,6 +172,20 @@ function App() {
   streamRef.current.getTracks().forEach((track) => track.stop());
   setRecording(false);
 };
+const deleteTranscription = async (id) => {
+  try {
+    await fetch(
+      `https://speech-to-text-app-z349.onrender.com/transcriptions/${id}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    setHistory(history.filter((item) => item._id !== id));
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   const clearHistory = async () => {
     await fetch(
@@ -415,11 +429,18 @@ if (isRecovery) {
                       {item.fileName}
                     </h3>
 
-                    <span className="text-sm text-slate-500">
-                      {new Date(
-                        item.createdAt
-                      ).toLocaleString()}
-                    </span>
+                    <div className="flex items-center gap-4">
+  <p className="text-sm text-slate-400">
+    {new Date(item.createdAt).toLocaleString()}
+  </p>
+
+  <button
+    onClick={() => deleteTranscription(item._id)}
+    className="rounded-lg bg-red-500 px-3 py-1 text-sm font-bold text-white hover:bg-red-600"
+  >
+    Delete
+  </button>
+</div>
                   </div>
 
                   <p className="leading-relaxed text-slate-300">
