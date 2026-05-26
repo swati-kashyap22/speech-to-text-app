@@ -4,6 +4,7 @@ import Auth from "./Auth";
 
 function App() {
   const [user, setUser] = useState(null);
+  const [isRecovery, setIsRecovery] = useState(false);
  const [authLoading, setAuthLoading] = useState(false);
 
   const [transcription, setTranscription] = useState("");
@@ -48,10 +49,14 @@ function App() {
 
   const {
     data: { subscription },
-  } = supabase.auth.onAuthStateChange((_event, session) => {
-    setUser(session?.user || null);
-    setAuthLoading(false);
-  });
+  } = supabase.auth.onAuthStateChange((event, session) => {
+  if (event === "PASSWORD_RECOVERY") {
+    setIsRecovery(true);
+  }
+
+  setUser(session?.user || null);
+  setAuthLoading(false);
+});
 
   return () => {
     mounted = false;
@@ -180,11 +185,62 @@ function App() {
 
     setMessage("History cleared successfully");
   };
+  const updatePassword = async (e) => {
+  e.preventDefault();
 
+  const newPassword = e.target.password.value;
+
+  const { error } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
+
+  if (error) {
+    alert(error.message);
+  } else {
+    alert("Password updated successfully. Please login again.");
+    await supabase.auth.signOut();
+    setIsRecovery(false);
+    setUser(null);
+  }
+};
+
+if (isRecovery) {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 px-4 text-white">
+      <form
+        onSubmit={updatePassword}
+        className="w-full max-w-md rounded-3xl border border-white/10 bg-white/10 p-8 shadow-2xl backdrop-blur"
+      >
+        <h1 className="mb-3 text-4xl font-bold">Reset Password</h1>
+
+        <p className="mb-6 text-slate-300">
+          Enter your new password for EchoScript.
+        </p>
+
+        <input
+          name="password"
+          type="password"
+          placeholder="New password"
+          className="mb-5 w-full rounded-2xl bg-slate-900/70 px-5 py-4 text-white outline-none"
+          required
+        />
+
+        <button
+          type="submit"
+          className="w-full rounded-2xl bg-blue-600 py-4 text-lg font-bold text-white hover:bg-blue-500"
+        >
+          Update Password
+        </button>
+      </form>
+    </div>
+  );
+}
 
   if (!user) {
     return <Auth />;
   }
+
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 px-4 py-10 text-white">
