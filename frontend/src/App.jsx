@@ -286,7 +286,7 @@ if (isRecovery) {
         <div className="grid gap-6 md:grid-cols-2">
 
           {/* AUDIO INPUT */}
-          <div className="h-[540px] rounded-3xl border border-white/10 bg-white/10 p-8 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/40 hover:shadow-[0_0_40px_rgba(59,130,246,0.45)]">
+          <div className="min-h-[600px] rounded-3xl border border-white/10 bg-white/10 p-8 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/40 hover:shadow-[0_0_40px_rgba(59,130,246,0.45)]">
             <h2 className="mb-6 text-3xl font-bold">
               Audio Input
             </h2>
@@ -344,18 +344,18 @@ if (isRecovery) {
             </div>
 
             {recording && (
-              <div className="mt-5 flex items-center gap-3 rounded-2xl bg-red-500/20 p-4 text-red-200">
+  <div className="mt-4 flex items-center gap-3 rounded-2xl bg-red-500/20 p-3 text-red-200">
                 <span className="h-3 w-3 animate-pulse rounded-full bg-red-400"></span>
 
                 Recording in progress...
               </div>
             )}
 
-            {message && (
-              <div className="mt-5 rounded-2xl bg-white/10 p-4 text-slate-200">
-                {message}
-              </div>
-            )}
+            {message && !recording && (
+  <div className="mt-4 rounded-2xl bg-white/10 p-3 text-slate-200">
+    {message}
+  </div>
+)}
           </div>
 
           {/* TRANSCRIPTION */}
