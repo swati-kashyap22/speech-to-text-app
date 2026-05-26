@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { Trash2 } from "lucide-react";import { useEffect, useRef, useState } from "react";
 import { supabase } from "./supabase";
 import Auth from "./Auth";
 
@@ -430,16 +431,16 @@ if (isRecovery) {
                     </h3>
 
                     <div className="flex items-center gap-4">
-  <p className="text-sm text-slate-400">
+  <span className="text-sm text-slate-500">
     {new Date(item.createdAt).toLocaleString()}
-  </p>
+  </span>
 
   <button
-    onClick={() => deleteTranscription(item._id)}
-    className="rounded-lg bg-red-500 px-3 py-1 text-sm font-bold text-white hover:bg-red-600"
-  >
-    Delete
-  </button>
+  onClick={() => deleteTranscription(item._id)}
+  className="rounded-full bg-red-500/20 p-2 text-red-400 transition hover:bg-red-500/30 hover:text-red-300"
+>
+  <Trash2 size={18} />
+</button>
 </div>
                   </div>
 
