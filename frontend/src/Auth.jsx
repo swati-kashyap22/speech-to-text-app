@@ -158,9 +158,12 @@ function Auth() {
             <div className="mb-8 flex rounded-2xl bg-slate-900/60 p-1">
               <button
                 onClick={() => {
-                  setMode("login");
-                  setMessage("");
-                }}
+  setMode("login");
+  setEmail("");
+  setPassword("");
+  setConfirmPassword("");
+  setMessage("");
+}}
                 className={`w-1/2 rounded-xl py-3 font-semibold transition ${
                   mode === "login" ? "bg-blue-600 text-white" : "text-slate-400"
                 }`}
@@ -172,9 +175,12 @@ function Auth() {
 
               <button
                 onClick={() => {
-                  setMode("signup");
-                  setMessage("");
-                }}
+  setMode("signup");
+  setEmail("");
+  setPassword("");
+  setConfirmPassword("");
+  setMessage("");
+}}
                 className={`w-1/2 rounded-xl py-3 font-semibold transition ${
                   mode === "signup" ? "bg-blue-600 text-white" : "text-slate-400"
                 }`}
