@@ -1,8 +1,11 @@
+import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "./supabase";
 
 function Auth() {
   const [mode, setMode] = useState("login");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -221,15 +224,25 @@ function Auth() {
   onChange={(e) => setEmail(e.target.value)}
   required
 />
-             <input
-  type="password"
-  placeholder="Enter password"
-  autoComplete="new-password"
-  className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-4 text-white outline-none transition focus:border-blue-500"
-  value={password}
-  onChange={(e) => setPassword(e.target.value)}
-  required
-/>
+             <div className="relative">
+  <input
+    type={showPassword ? "text" : "password"}
+    placeholder="Enter password"
+    autoComplete="new-password"
+    className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-4 pr-12 text-white outline-none transition focus:border-blue-500"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    required
+  />
+
+  <button
+    type="button"
+    onClick={() => setShowPassword(!showPassword)}
+    className="absolute right-4 top-1/2 -translate-y-1/2 text-white"
+  >
+    {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
+  </button>
+</div>
 
               <button
                 type="submit"
@@ -267,6 +280,9 @@ function Auth() {
             </form>
           )}
 
+{/* sing up */}
+
+
           {mode === "signup" && (
             <form onSubmit={handleSignup} className="space-y-5">
               <input
@@ -279,25 +295,52 @@ function Auth() {
   required
 />
 
-              <input
-  type="password"
-  placeholder="Create password"
-  autoComplete="new-password"
-  className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-4 text-white outline-none transition focus:border-blue-500"
-  value={password}
-  onChange={(e) => setPassword(e.target.value)}
-  required
-/>
+  <div className="relative">
+  <input
+    type={showPassword ? "text" : "password"}
+    placeholder="Create password"
+    autoComplete="new-password"
+    className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-4 pr-12 text-white outline-none transition focus:border-blue-500"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    required
+  />
 
-              <input
-  type="password"
-  placeholder="Confirm password"
-  autoComplete="new-password"
-  className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-4 text-white outline-none transition focus:border-blue-500"
-  value={confirmPassword}
-  onChange={(e) => setConfirmPassword(e.target.value)}
-  required
-/>
+  <button
+    type="button"
+    onClick={() => setShowPassword(!showPassword)}
+    className="absolute right-4 top-1/2 -translate-y-1/2 text-white"
+  >
+    {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
+  </button>
+</div>
+
+
+      <div className="relative">
+  <input
+    type={showConfirmPassword ? "text" : "password"}
+    placeholder="Confirm password"
+    autoComplete="new-password"
+    className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-4 pr-12 text-white outline-none transition focus:border-blue-500"
+    value={confirmPassword}
+    onChange={(e) => setConfirmPassword(e.target.value)}
+    required
+  />
+
+  <button
+    type="button"
+    onClick={() =>
+      setShowConfirmPassword(!showConfirmPassword)
+    }
+    className="absolute right-4 top-1/2 -translate-y-1/2 text-white"
+  >
+    {showConfirmPassword ? (
+      <EyeOff size={22} />
+    ) : (
+      <Eye size={22} />
+    )}
+  </button>
+</div>
 
               <button
                 type="submit"
