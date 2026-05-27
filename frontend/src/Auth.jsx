@@ -24,9 +24,13 @@ function Auth() {
         password,
       });
 
-      if (error) {
-        setMessage(error.message);
-      }
+     if (error) {
+  if (error.message === "Invalid login credentials") {
+    setMessage("Invalid email or password. If you don't have an account, please sign up first.");
+  } else {
+    setMessage(error.message);
+  }
+}
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -357,10 +361,18 @@ function Auth() {
           )}
 
           {message && (
-            <div className="mt-6 rounded-2xl bg-white/10 p-4 text-center text-sm text-slate-200">
-              {message}
-            </div>
-          )}
+  <div
+    className={`mt-6 rounded-2xl p-4 text-center text-sm font-semibold ${
+      message.toLowerCase().includes("invalid") ||
+      message.toLowerCase().includes("passwords do not match") ||
+      message.toLowerCase().includes("error")
+        ? "border border-red-400/40 bg-red-500/20 text-red-200"
+        : "border border-emerald-400/40 bg-emerald-500/20 text-emerald-200"
+    }`}
+  >
+    {message}
+  </div>
+)}
         </div>
       </div>
     </div>
