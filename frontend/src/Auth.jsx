@@ -209,22 +209,23 @@ function Auth() {
           {mode === "login" && (
             <form onSubmit={handleLogin} className="space-y-5">
               <input
-                type="email"
-                placeholder="Enter email"
-                className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-4 text-white outline-none transition focus:border-blue-500"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-
-              <input
-                type="password"
-                placeholder="Enter password"
-                className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-4 text-white outline-none transition focus:border-blue-500"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+  type="email"
+  placeholder="Enter email"
+  autoComplete="off"
+  className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-4 text-white outline-none transition focus:border-blue-500"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  required
+/>
+             <input
+  type="password"
+  placeholder="Enter password"
+  autoComplete="new-password"
+  className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-4 text-white outline-none transition focus:border-blue-500"
+  value={password}
+  onChange={(e) => setPassword(e.target.value)}
+  required
+/>
 
               <button
                 type="submit"
@@ -265,31 +266,34 @@ function Auth() {
           {mode === "signup" && (
             <form onSubmit={handleSignup} className="space-y-5">
               <input
-                type="email"
-                placeholder="Enter email"
-                className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-4 text-white outline-none transition focus:border-blue-500"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+  type="email"
+  placeholder="Enter email"
+  autoComplete="off"
+  className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-4 text-white outline-none transition focus:border-blue-500"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  required
+/>
 
               <input
-                type="password"
-                placeholder="Create password"
-                className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-4 text-white outline-none transition focus:border-blue-500"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+  type="password"
+  placeholder="Create password"
+  autoComplete="new-password"
+  className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-4 text-white outline-none transition focus:border-blue-500"
+  value={password}
+  onChange={(e) => setPassword(e.target.value)}
+  required
+/>
 
               <input
-                type="password"
-                placeholder="Confirm password"
-                className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-4 text-white outline-none transition focus:border-blue-500"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
+  type="password"
+  placeholder="Confirm password"
+  autoComplete="new-password"
+  className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-4 text-white outline-none transition focus:border-blue-500"
+  value={confirmPassword}
+  onChange={(e) => setConfirmPassword(e.target.value)}
+  required
+/>
 
               <button
                 type="submit"
@@ -304,13 +308,14 @@ function Auth() {
           {mode === "verify" && (
             <form onSubmit={handleVerifyOtp} className="space-y-5">
               <input
-                type="email"
-                placeholder="Email"
-                className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-4 text-white outline-none transition focus:border-blue-500"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+  type="email"
+  placeholder="Email"
+  autoComplete="off"
+  className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-4 text-white outline-none transition focus:border-blue-500"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  required
+/>
 
               <input
                 type="text"
